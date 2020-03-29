@@ -6,10 +6,12 @@ const core = require("@actions/core");
 const exec = require("@actions/exec");
 const tc = require("@actions/tool-cache");
 
-// TODO: Can these be grabbed from the running action?
-const ACTION_NAME = "@kjvalencik/actions";
-const REPOSITORY = "https://github.com/kjvalencik/actions";
-const VERSION = "0";
+const {
+	name: ACTION_NAME,
+	repository: REPOSITORY,
+	version: VERSION,
+} = require("../package.json");
+
 const COMMAND = path.basename(require.main.path);
 
 const { RUNNER_TEMP } = process.env;

@@ -1,6 +1,7 @@
 {
   "name": "@kjvalencik/actions",
   "version": "0.0.0",
+  "repository": "https://github.com/kjvalencik/actions",
   "private": true,
   "description": "Github Actions written with Rust",
   "main": "index.js",
