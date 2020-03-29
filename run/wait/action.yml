@@ -1,0 +1,11 @@
+name: '@kjvalencik/actions/run/wait'
+description: Waits for a specified number of milliseconds
+author: K.J. Valencik
+inputs:
+  milliseconds:
+    required: true
+    description: Time to wait
+    default: '1000'
+runs:
+  using: node12
+  main: index.js
