@@ -10,7 +10,7 @@ const tc = require("@actions/tool-cache");
 const ACTION_NAME = "@kjvalencik/actions";
 const REPOSITORY = "https://github.com/kjvalencik/actions";
 const VERSION = "0";
-const COMMAND = path.basename(__dirname);
+const COMMAND = path.basename(require.main.path);
 
 const { RUNNER_TEMP } = process.env;
 const { platform: PLATFORM } = process;

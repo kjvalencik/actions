@@ -7,8 +7,7 @@
   "author": "K.J. Valencik",
   "license": "MIT",
   "scripts": {
-    "build": "npm run pack && npm run copy",
-    "copy": "find run -maxdepth 1 -mindepth 1 -type d -exec cp dist/index.js {} \\;",
+    "build": "npm run pack",
     "pack": "ncc build run/index.js"
   },
   "dependencies": {
