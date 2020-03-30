@@ -33,7 +33,7 @@ async function downloadTar(os: OS): Promise<string> {
 	const url = `${BASE_URL}/${file}`;
 	const downloadPath = await tc.downloadTool(url);
 	const extractPath = await tc.extractTar(downloadPath, RUNNER_TEMP);
-	const extractedFile = path.join(extractPath, NAME);
+	const extractedFile = path.join(extractPath, BINARY_NAME);
 
 	return tc.cacheFile(extractedFile, BINARY_NAME, ACTION_NAME, VERSION);
 }
@@ -60,7 +60,7 @@ async function windows(): Promise<void> {
 	const cacheDir = tc.find(ACTION_NAME, "0.0.0")
 		|| await downloadTar("win32");
 
-	const binary = path.join(cacheDir, BINARY_NAME);
+	const binary = path.join(cacheDir, NAME);
 
 	await exec.exec(binary, [COMMAND]);
 }

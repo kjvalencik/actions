@@ -89,7 +89,7 @@ function downloadTar(os) {
         const url = `${BASE_URL}/${file}`;
         const downloadPath = yield tc.downloadTool(url);
         const extractPath = yield tc.extractTar(downloadPath, RUNNER_TEMP);
-        const extractedFile = path_1.default.join(extractPath, NAME);
+        const extractedFile = path_1.default.join(extractPath, BINARY_NAME);
         return tc.cacheFile(extractedFile, BINARY_NAME, ACTION_NAME, VERSION);
     });
 }
@@ -113,7 +113,7 @@ function windows() {
     return __awaiter(this, void 0, void 0, function* () {
         const cacheDir = tc.find(ACTION_NAME, "0.0.0")
             || (yield downloadTar("win32"));
-        const binary = path_1.default.join(cacheDir, BINARY_NAME);
+        const binary = path_1.default.join(cacheDir, NAME);
         yield exec.exec(binary, [COMMAND]);
     });
 }
