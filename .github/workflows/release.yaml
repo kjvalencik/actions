@@ -35,30 +35,16 @@ jobs:
           git fetch --depth=1 origin "+refs/tags/${TAG}" > /dev/null 2>&1 &&
           echo "::set-output name=exists::true" ||
           echo "::set-output name=exists::false"
-      - name: Bundle Release Asset (Linux)
+      - name: Bundle Release Asset
         id: asset
-        if: matrix.os == 'ubuntu-latest'
         env:
           NAME: ${{ steps.cargo.outputs.name }}
           VERSION: ${{ steps.cargo.outputs.version }}
+          OS: ${{ matrix.os }}
         run: >-
-          export ASSET_NAME="${NAME}-v${VERSION}-linux-x64.tar.gz" &&
-          export ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}" &&
-          export BINARY="./target/release/${NAME}" &&
-          strip "$BINARY" &&
-          tar -czf "$ASSET_PATH" -C "./target/release" "$NAME" &&
-          echo -n "::set-output name=name::" &&
-          echo "$ASSET_NAME" &&
-          echo -n "::set-output name=path::" &&
-          echo "$ASSET_PATH"
-      - name: Bundle Release Asset (macOS)
-        id: asset
-        if: matrix.os == 'ubuntu-latest'
-        env:
-          NAME: ${{ steps.cargo.outputs.name }}
-          VERSION: ${{ steps.cargo.outputs.version }}
-        run: >-
-          export ASSET_NAME="${NAME}-v${VERSION}-linux-x64.tar.gz" &&
+          export ARCH="linux" &&
+          if [ "$OS" = "macos-latest" ]; then export ARCH="darwin"; fi &&
+          export ASSET_NAME="${NAME}-v${VERSION}-${ARCH}-x64.tar.gz" &&
           export ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}" &&
           export BINARY="./target/release/${NAME}" &&
           strip "$BINARY" &&
