@@ -80,7 +80,7 @@ const { name: NAME, repository: REPOSITORY, version: VERSION, } = toml_1.default
 const { RUNNER_TEMP } = process.env;
 const { platform: PLATFORM } = process;
 const ACTION_NAME = url_1.default.parse(REPOSITORY).pathname.slice(1);
-const BASE_URL = `${REPOSITORY}/releases/download/${VERSION}`;
+const BASE_URL = `${REPOSITORY}/releases/download/v${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
 function downloadTar(os) {
     return __awaiter(this, void 0, void 0, function* () {

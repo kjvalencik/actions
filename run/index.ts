@@ -22,7 +22,7 @@ const { RUNNER_TEMP } = process.env;
 const { platform: PLATFORM } = process;
 
 const ACTION_NAME = url.parse(REPOSITORY).pathname!.slice(1);
-const BASE_URL = `${REPOSITORY}/releases/download/${VERSION}`;
+const BASE_URL = `${REPOSITORY}/releases/download/v${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
 
 async function downloadTar(os: "linux" | "darwin"): Promise<string> {
