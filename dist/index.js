@@ -82,9 +82,9 @@ const { platform: PLATFORM } = process;
 const ACTION_NAME = url_1.default.parse(REPOSITORY).pathname.slice(1);
 const BASE_URL = `${REPOSITORY}/releases/download/${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
-function downloadLinux() {
+function downloadTar(os) {
     return __awaiter(this, void 0, void 0, function* () {
-        const file = `${FILE_PREFIX}-linux-x64.tar.gz`;
+        const file = `${FILE_PREFIX}-${os}-x64.tar.gz`;
         const url = `${BASE_URL}/${file}`;
         const downloadPath = yield tc.downloadTool(url);
         const extractPath = yield tc.extractTar(downloadPath, RUNNER_TEMP);
@@ -94,7 +94,16 @@ function downloadLinux() {
 }
 function linux() {
     return __awaiter(this, void 0, void 0, function* () {
-        const cacheDir = tc.find(ACTION_NAME, "0.0.0") || (yield downloadLinux());
+        const cacheDir = tc.find(ACTION_NAME, "0.0.0")
+            || (yield downloadTar("linux"));
+        const binary = path_1.default.join(cacheDir, NAME);
+        yield exec.exec(binary, [COMMAND]);
+    });
+}
+function macos() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const cacheDir = tc.find(ACTION_NAME, "0.0.0")
+            || (yield downloadTar("darwin"));
         const binary = path_1.default.join(cacheDir, NAME);
         yield exec.exec(binary, [COMMAND]);
     });
@@ -103,7 +112,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         switch (PLATFORM) {
             case "linux": return linux();
-            case "darwin":
+            case "darwin": return macos();
             case "win32":
             case "aix":
             case "freebsd":

@@ -25,8 +25,8 @@ const ACTION_NAME = url.parse(REPOSITORY).pathname!.slice(1);
 const BASE_URL = `${REPOSITORY}/releases/download/${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
 
-async function downloadLinux(): Promise<string> {
-	const file = `${FILE_PREFIX}-linux-x64.tar.gz`;
+async function downloadTar(os: "linux" | "darwin"): Promise<string> {
+	const file = `${FILE_PREFIX}-${os}-x64.tar.gz`;
 	const url = `${BASE_URL}/${file}`;
 	const downloadPath = await tc.downloadTool(url);
 	const extractPath = await tc.extractTar(downloadPath, RUNNER_TEMP);
@@ -36,7 +36,18 @@ async function downloadLinux(): Promise<string> {
 }
 
 async function linux(): Promise<void> {
-	const cacheDir = tc.find(ACTION_NAME, "0.0.0") || await downloadLinux();
+	const cacheDir = tc.find(ACTION_NAME, "0.0.0")
+		|| await downloadTar("linux");
+
+	const binary = path.join(cacheDir, NAME);
+
+	await exec.exec(binary, [COMMAND]);
+}
+
+async function macos(): Promise<void> {
+	const cacheDir = tc.find(ACTION_NAME, "0.0.0")
+		|| await downloadTar("darwin");
+
 	const binary = path.join(cacheDir, NAME);
 
 	await exec.exec(binary, [COMMAND]);
@@ -45,7 +56,7 @@ async function linux(): Promise<void> {
 async function run(): Promise<void> {
 	switch (PLATFORM) {
 		case "linux": return linux();
-		case "darwin":
+		case "darwin": return macos();
 		case "win32":
 		case "aix":
 		case "freebsd":

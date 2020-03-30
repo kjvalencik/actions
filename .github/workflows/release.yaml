@@ -5,7 +5,12 @@ on:
       - master
 jobs:
   release:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -30,8 +35,25 @@ jobs:
           git fetch --depth=1 origin "+refs/tags/${TAG}" > /dev/null 2>&1 &&
           echo "::set-output name=exists::true" ||
           echo "::set-output name=exists::false"
-      - name: Bundle Release Asset
+      - name: Bundle Release Asset (Linux)
         id: asset
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          NAME: ${{ steps.cargo.outputs.name }}
+          VERSION: ${{ steps.cargo.outputs.version }}
+        run: >-
+          export ASSET_NAME="${NAME}-v${VERSION}-linux-x64.tar.gz" &&
+          export ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}" &&
+          export BINARY="./target/release/${NAME}" &&
+          strip "$BINARY" &&
+          tar -czf "$ASSET_PATH" -C "./target/release" "$NAME" &&
+          echo -n "::set-output name=name::" &&
+          echo "$ASSET_NAME" &&
+          echo -n "::set-output name=path::" &&
+          echo "$ASSET_PATH"
+      - name: Bundle Release Asset (macOS)
+        id: asset
+        if: matrix.os == 'ubuntu-latest'
         env:
           NAME: ${{ steps.cargo.outputs.name }}
           VERSION: ${{ steps.cargo.outputs.version }}
@@ -46,26 +68,13 @@ jobs:
           echo -n "::set-output name=path::" &&
           echo "$ASSET_PATH"
       - name: Create Release
+        uses: softprops/action-gh-release@v1
         if: steps.tag.outputs.exists == 'false'
-        id: release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.cargo.outputs.version }}
-          release_name: Release ${{ steps.cargo.outputs.version }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        if: steps.tag.outputs.exists == 'false'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ${{ steps.asset.outputs.path }}
-          asset_name: ${{ steps.asset.outputs.name }}
-          asset_content_type: application/x-gzip
+          files: ${{ steps.asset.outputs.path }}
       - name: Create semver tags
         if: steps.tag.outputs.exists == 'false'
         env:
