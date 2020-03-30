@@ -1,10 +1,10 @@
 "use strict";
 
-const path = require("path");
+import path from "path";
 
-const core = require("@actions/core");
-const exec = require("@actions/exec");
-const tc = require("@actions/tool-cache");
+import * as core from "@actions/core";
+import * as exec from "@actions/exec";
+import * as tc from "@actions/tool-cache";
 
 const {
 	name: ACTION_NAME,
@@ -12,7 +12,7 @@ const {
 	version: VERSION,
 } = require("../package.json");
 
-const COMMAND = path.basename(require.main.path);
+const COMMAND = path.basename(path.dirname(require.main!.filename));
 
 const { RUNNER_TEMP } = process.env;
 const { platform: PLATFORM } = process;
@@ -21,7 +21,7 @@ const NAME = ACTION_NAME.slice(ACTION_NAME.lastIndexOf("/") + 1);
 const BASE_URL = `${REPOSITORY}/releases/download/${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
 
-async function downloadLinux() {
+async function downloadLinux(): Promise<string> {
 	const file = `${FILE_PREFIX}-linux-x64.tar.gz`;
 	const url = `${BASE_URL}/${file}`;
 	const downloadPath = await tc.downloadTool(url);
@@ -31,14 +31,14 @@ async function downloadLinux() {
 	return tc.cacheFile(extractedFile, NAME, ACTION_NAME, VERSION);
 }
 
-async function linux() {
-	const cacheDir = tc.find(ACTION_NAME, '0.0.0') || await downloadLinux();
+async function linux(): Promise<void> {
+	const cacheDir = tc.find(ACTION_NAME, "0.0.0") || await downloadLinux();
 	const binary = path.join(cacheDir, NAME);
 
-	return exec.exec(binary, [COMMAND]);
+	await exec.exec(binary, [COMMAND]);
 }
 
-async function run() {
+async function run(): Promise<void> {
 	switch (PLATFORM) {
 		case "linux": return linux();
 		case "darwin":

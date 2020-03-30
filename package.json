@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "build": "npm run pack",
-    "pack": "ncc build run/index.js"
+    "pack": "ncc build run/index.ts"
   },
   "dependencies": {
     "@actions/core": "^1.2.3",
@@ -17,6 +17,7 @@
     "@actions/tool-cache": "^1.3.3"
   },
   "devDependencies": {
+    "@types/node": "^13.9.5",
     "@zeit/ncc": "^0.22.0"
   }
 }

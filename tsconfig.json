@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"composite": false,
+		"target": "es2016",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"sourceMap": true,
+		"declaration": false,
+		"declarationMap": false,
+		"strict": true,
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUnusedParameters": true,
+		"noUnusedLocals": true,
+		"forceConsistentCasingInFileNames": true,
+		"lib": ["es2017", "esnext.asynciterable"],
+		"types": ["node"]
+	}
+}
