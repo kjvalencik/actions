@@ -4,7 +4,7 @@ on:
     branches:
       - master
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -71,5 +71,9 @@ jobs:
         env:
           VERSION: ${{ steps.cargo.outputs.version }}
         run: >-
-          git push -f "$(cut -d'.' -f1-2 <<< "$VERSION")" &&
-          git push -f "$(cut -d'.' -f1 <<< "$VERSION")"
+          export MINOR_VERSION="$(cut -d'.' -f1-2 <<< "$VERSION")" &&
+          export MAJOR_VERSION="$(cut -d'.' -f1 <<< "$VERSION")" &&
+          git tag "$MINOR_VERSION" &&
+          git tag "$MAJOR_VERSION" &&
+          git push -f origin "$MINOR_VERSION" &&
+          git push -f origin "$MAJOR_VERSION"
