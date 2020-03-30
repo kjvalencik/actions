@@ -1,6 +1,8 @@
 name: Release
 on:
-  - push
+  push:
+    branches:
+      - master
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -67,16 +69,6 @@ jobs:
       - name: Create semver tags
         if: steps.tag.outputs.exists == "false"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ${{ steps.asset.outputs.path }}
-          asset_name: ${{ steps.asset.outputs.name }}
-          asset_content_type: application/x-gzip
-      - name: Create semver tags
-        if: steps.tag.outputs.exists == "false"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.cargo.outputs.version }}
         run: >-
           git push -f "$(cut -d'.' -f1-2 <<< "$VERSION")" &&
