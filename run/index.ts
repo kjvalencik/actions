@@ -1,23 +1,27 @@
 "use strict";
 
+import fs from "fs";
 import path from "path";
+import url from "url";
 
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as tc from "@actions/tool-cache";
-
-const {
-	name: ACTION_NAME,
-	repository: REPOSITORY,
-	version: VERSION,
-} = require("../package.json");
+import toml from 'toml';
 
 const COMMAND = path.basename(path.dirname(require.main!.filename));
+const CARGO_TOML = fs.readFileSync(path.join(__dirname, "../Cargo.toml"));
+
+const {
+	name: NAME,
+	repository: REPOSITORY,
+	version: VERSION,
+} = toml.parse(CARGO_TOML.toString()).package;
 
 const { RUNNER_TEMP } = process.env;
 const { platform: PLATFORM } = process;
 
-const NAME = ACTION_NAME.slice(ACTION_NAME.lastIndexOf("/") + 1);
+const ACTION_NAME = url.parse(REPOSITORY).pathname!.slice(1);
 const BASE_URL = `${REPOSITORY}/releases/download/${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
 
