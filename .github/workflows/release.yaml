@@ -27,7 +27,7 @@ jobs:
         env:
           TAG: ${{ steps.cargo.outputs.version }}
         run: >-
-          git describe --tags "$TAG" &&
+          git fetch --depth=1 origin "+refs/tags/${TAG}" > /dev/null 2>&1 &&
           echo "::set-output name=exists::true" ||
           echo "::set-output name=exists::false"
       - name: Bundle Release Asset
