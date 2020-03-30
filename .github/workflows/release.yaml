@@ -54,7 +54,8 @@ jobs:
           if [ "$OS" = "windows-latest" ]; then export NAME="${NAME}.exe"; fi &&
           export BINARY="./target/release/${NAME}" &&
           if [ "$OS" != "windows-latest" ]; then strip "$BINARY"; fi &&
-          tar --force-local -czf "$ASSET_PATH" -C "./target/release" "$NAME" &&
+          if [ "$OS" != "windows-latest" ]; then tar -czf "$ASSET_PATH" -C "./target/release" "$NAME"; fi &&
+          if [ "$OS" = "windows-latest" ]; then tar --force-local -czf "$ASSET_PATH" -C "./target/release" "$NAME"; fi &&
           echo -n "::set-output name=path::" &&
           echo "$ASSET_PATH"
       - name: Create Release
