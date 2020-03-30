@@ -1,6 +1,6 @@
 [package]
 name = "actions"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["K.J. Valencik <kjvalencik@gmail.com>"]
 repository = "https://github.com/kjvalencik/actions"
 edition = "2018"

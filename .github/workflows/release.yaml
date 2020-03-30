@@ -1,0 +1,83 @@
+name: Release
+on:
+  - push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: cargo build --release
+      - name: Test
+        run: cargo test --release
+      - name: Get Cargo Metadata
+        id: cargo
+        run: >-
+          echo -n "::set-output name=version::" &&
+          cargo metadata --format-version=1 --no-deps |
+          jq -r '.packages[0].version' &&
+          echo -n "::set-output name=name::" &&
+          cargo metadata --format-version=1 --no-deps |
+          jq -r '.packages[0].name'
+      - name: Check if tag is released
+        id: tag
+        env:
+          TAG: ${{ steps.cargo.outputs.version }}
+        run: >-
+          git describe --tags "$TAG" > /dev/null 2>&1 &&
+          echo "::set-output name=exists::true" ||
+          echo "::set-output name=exists::false"
+      - name: Bundle Release Asset
+        id: asset
+        env:
+          NAME: ${{ steps.cargo.outputs.name }}
+          VERSION: ${{ steps.cargo.outputs.version }}
+        run: >-
+          export ASSET_NAME="${NAME}-v${VERSION}-linux-x64.tar.gz" &&
+          export ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}" &&
+          export BINARY="./target/release/${NAME}" &&
+          strip "$BINARY" &&
+          tar -cz "$BINARY" -f "$ASSET_PATH" &&
+          echo -n "::set-output name=name::" &&
+          echo "$ASSET_NAME" &&
+          echo -n "::set-output name=path::" &&
+          echo "$ASSET_PATH"
+      - name: Create Release
+        if: steps.tag.outputs.exists == "false"
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.cargo.outputs.version }}
+          release_name: Release ${{ steps.cargo.outputs.version }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        if: steps.tag.outputs.exists == "false"
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ${{ steps.asset.outputs.path }}
+          asset_name: ${{ steps.asset.outputs.name }}
+          asset_content_type: application/x-gzip
+      - name: Create semver tags
+        if: steps.tag.outputs.exists == "false"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ${{ steps.asset.outputs.path }}
+          asset_name: ${{ steps.asset.outputs.name }}
+          asset_content_type: application/x-gzip
+      - name: Create semver tags
+        if: steps.tag.outputs.exists == "false"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.cargo.outputs.version }}
+        run: >-
+          git push -f "$(cut -d'.' -f1-2 <<< "$VERSION")" &&
+          git push -f "$(cut -d'.' -f1 <<< "$VERSION")"
