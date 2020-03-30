@@ -46,7 +46,7 @@ jobs:
           echo -n "::set-output name=path::" &&
           echo "$ASSET_PATH"
       - name: Create Release
-        if: steps.tag.outputs.exists == "false"
+        if: steps.tag.outputs.exists == 'false'
         id: release
         uses: actions/create-release@v1
         env:
@@ -57,7 +57,7 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload Release Asset
-        if: steps.tag.outputs.exists == "false"
+        if: steps.tag.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -67,7 +67,7 @@ jobs:
           asset_name: ${{ steps.asset.outputs.name }}
           asset_content_type: application/x-gzip
       - name: Create semver tags
-        if: steps.tag.outputs.exists == "false"
+        if: steps.tag.outputs.exists == 'false'
         env:
           VERSION: ${{ steps.cargo.outputs.version }}
         run: >-
