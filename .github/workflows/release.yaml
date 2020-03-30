@@ -59,16 +59,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.cargo.outputs.version }}
+          tag_name: v${{ steps.cargo.outputs.version }}
           files: ${{ steps.asset.outputs.path }}
+  retag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Create semver tags
-        if: steps.tag.outputs.exists == 'false'
         env:
           VERSION: ${{ steps.cargo.outputs.version }}
         run: >-
-          export MINOR_VERSION="$(cut -d'.' -f1-2 <<< "$VERSION")" &&
+          git fetch --depth=1 origin "+refs/tags/${TAG}" > /dev/null 2>&1 &&
           export MAJOR_VERSION="$(cut -d'.' -f1 <<< "$VERSION")" &&
-          git tag "$MINOR_VERSION" &&
+          export MINOR_VERSION="$(cut -d'.' -f1-2 <<< "$VERSION")" &&
           git tag "$MAJOR_VERSION" &&
+          git tag "$MINOR_VERSION" &&
+          git tag "$VERSION"
+          git push -f origin "$MAJOR_VERSION" &&
           git push -f origin "$MINOR_VERSION" &&
-          git push -f origin "$MAJOR_VERSION"
+          git push -f origin "$VERSION"
