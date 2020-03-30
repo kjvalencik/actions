@@ -11,6 +11,6 @@ jobs:
           - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: kjvalencik/actions/run/wait@0
+      - uses: kjvalencik/actions/run/wait@master
         with:
           milliseconds: '10000'

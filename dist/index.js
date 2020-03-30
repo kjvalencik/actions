@@ -79,6 +79,7 @@ const CARGO_TOML = fs_1.default.readFileSync(path_1.default.join(__dirname, "../
 const { name: NAME, repository: REPOSITORY, version: VERSION, } = toml_1.default.parse(CARGO_TOML.toString()).package;
 const { RUNNER_TEMP } = process.env;
 const { platform: PLATFORM } = process;
+const BINARY_NAME = PLATFORM === 'win32' ? `${NAME}.exe` : NAME;
 const ACTION_NAME = url_1.default.parse(REPOSITORY).pathname.slice(1);
 const BASE_URL = `${REPOSITORY}/releases/download/v${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
@@ -89,7 +90,7 @@ function downloadTar(os) {
         const downloadPath = yield tc.downloadTool(url);
         const extractPath = yield tc.extractTar(downloadPath, RUNNER_TEMP);
         const extractedFile = path_1.default.join(extractPath, NAME);
-        return tc.cacheFile(extractedFile, NAME, ACTION_NAME, VERSION);
+        return tc.cacheFile(extractedFile, BINARY_NAME, ACTION_NAME, VERSION);
     });
 }
 function linux() {
@@ -111,9 +112,9 @@ function macos() {
 function windows() {
     return __awaiter(this, void 0, void 0, function* () {
         const cacheDir = tc.find(ACTION_NAME, "0.0.0")
-            || (yield downloadTar("windows"));
-        const binary = path_1.default.join(cacheDir, NAME);
-        yield exec.exec(`${binary}.exe`, [COMMAND]);
+            || (yield downloadTar("win32"));
+        const binary = path_1.default.join(cacheDir, BINARY_NAME);
+        yield exec.exec(binary, [COMMAND]);
     });
 }
 function run() {
