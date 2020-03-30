@@ -6,8 +6,9 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-latest
           - macos-latest
+          - ubuntu-latest
+          - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: kjvalencik/actions/run/wait@0

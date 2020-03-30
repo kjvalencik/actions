@@ -108,12 +108,20 @@ function macos() {
         yield exec.exec(binary, [COMMAND]);
     });
 }
+function windows() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const cacheDir = tc.find(ACTION_NAME, "0.0.0")
+            || (yield downloadTar("windows"));
+        const binary = path_1.default.join(cacheDir, NAME);
+        yield exec.exec(`${binary}.exe`, [COMMAND]);
+    });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         switch (PLATFORM) {
             case "linux": return linux();
             case "darwin": return macos();
-            case "win32":
+            case "win32": return windows();
             case "aix":
             case "freebsd":
             case "openbsd":

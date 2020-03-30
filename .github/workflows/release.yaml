@@ -8,8 +8,9 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-latest
           - macos-latest
+          - ubuntu-latest
+          - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -20,6 +21,7 @@ jobs:
         run: cargo test --release
       - name: Get Cargo Metadata
         id: cargo
+        shell: bash
         run: >-
           echo -n "::set-output name=version::" &&
           cargo metadata --format-version=1 --no-deps |
@@ -29,6 +31,7 @@ jobs:
           jq -r '.packages[0].name'
       - name: Check if tag is released
         id: tag
+        shell: bash
         env:
           TAG: ${{ steps.cargo.outputs.version }}
         run: >-
@@ -37,6 +40,7 @@ jobs:
           echo "::set-output name=exists::false"
       - name: Bundle Release Asset
         id: asset
+        shell: bash
         env:
           NAME: ${{ steps.cargo.outputs.name }}
           VERSION: ${{ steps.cargo.outputs.version }}
@@ -44,13 +48,13 @@ jobs:
         run: >-
           export ARCH="linux" &&
           if [ "$OS" = "macos-latest" ]; then export ARCH="darwin"; fi &&
+          if [ "$OS" = "windows-latest" ]; then export ARCH="win32"; fi &&
           export ASSET_NAME="${NAME}-v${VERSION}-${ARCH}-x64.tar.gz" &&
           export ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}" &&
+          if [ "$OS" = "windows-latest" ]; then export NAME="${NAME}.exe"; fi &&
           export BINARY="./target/release/${NAME}" &&
-          strip "$BINARY" &&
+          if [ "$OS" != "windows-latest" ]; then strip "$BINARY"; fi &&
           tar -czf "$ASSET_PATH" -C "./target/release" "$NAME" &&
-          echo -n "::set-output name=name::" &&
-          echo "$ASSET_NAME" &&
           echo -n "::set-output name=path::" &&
           echo "$ASSET_PATH"
       - name: Create Release
@@ -69,12 +73,14 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Cargo Metadata
         id: cargo
+        shell: bash
         run: >-
           echo -n "::set-output name=version::" &&
           cargo metadata --format-version=1 --no-deps |
           jq -r '.packages[0].version'
       - name: Check if tag is released
         id: tag
+        shell: bash
         env:
           TAG: ${{ steps.cargo.outputs.version }}
         run: >-
@@ -83,6 +89,7 @@ jobs:
           echo "::set-output name=exists::false"
       - name: Create semver tags
         if: steps.tag.outputs.exists == 'false'
+        shell: bash
         env:
           VERSION: ${{ steps.cargo.outputs.version }}
         run: >-

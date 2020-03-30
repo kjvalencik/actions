@@ -25,7 +25,9 @@ const ACTION_NAME = url.parse(REPOSITORY).pathname!.slice(1);
 const BASE_URL = `${REPOSITORY}/releases/download/v${VERSION}`;
 const FILE_PREFIX = `${NAME}-v${VERSION}`;
 
-async function downloadTar(os: "linux" | "darwin"): Promise<string> {
+type OS = "linux" | "darwin" | "windows";
+
+async function downloadTar(os: OS): Promise<string> {
 	const file = `${FILE_PREFIX}-${os}-x64.tar.gz`;
 	const url = `${BASE_URL}/${file}`;
 	const downloadPath = await tc.downloadTool(url);
@@ -53,11 +55,20 @@ async function macos(): Promise<void> {
 	await exec.exec(binary, [COMMAND]);
 }
 
+async function windows(): Promise<void> {
+	const cacheDir = tc.find(ACTION_NAME, "0.0.0")
+		|| await downloadTar("windows");
+
+	const binary = path.join(cacheDir, NAME);
+
+	await exec.exec(`${binary}.exe`, [COMMAND]);
+}
+
 async function run(): Promise<void> {
 	switch (PLATFORM) {
 		case "linux": return linux();
 		case "darwin": return macos();
-		case "win32":
+		case "win32": return windows();
 		case "aix":
 		case "freebsd":
 		case "openbsd":
