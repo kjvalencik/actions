@@ -27,7 +27,7 @@ jobs:
         env:
           TAG: ${{ steps.cargo.outputs.version }}
         run: >-
-          git describe --tags "$TAG" > /dev/null 2>&1 &&
+          git describe --tags "$TAG" &&
           echo "::set-output name=exists::true" ||
           echo "::set-output name=exists::false"
       - name: Bundle Release Asset
@@ -40,7 +40,7 @@ jobs:
           export ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}" &&
           export BINARY="./target/release/${NAME}" &&
           strip "$BINARY" &&
-          tar -cz "$BINARY" -f "$ASSET_PATH" &&
+          tar -czf "$ASSET_PATH" -C "./target/release" "$NAME" &&
           echo -n "::set-output name=name::" &&
           echo "$ASSET_NAME" &&
           echo -n "::set-output name=path::" &&
