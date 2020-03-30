@@ -67,11 +67,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Get Cargo Metadata
+        id: cargo
+        run: >-
+          echo -n "::set-output name=version::" &&
+          cargo metadata --format-version=1 --no-deps |
+          jq -r '.packages[0].version'
+      - name: Check if tag is released
+        id: tag
+        env:
+          TAG: ${{ steps.cargo.outputs.version }}
+        run: >-
+          git fetch --depth=1 origin "+refs/tags/${TAG}" > /dev/null 2>&1 &&
+          echo "::set-output name=exists::true" ||
+          echo "::set-output name=exists::false"
       - name: Create semver tags
+        if: steps.tag.outputs.exists == 'false'
         env:
           VERSION: ${{ steps.cargo.outputs.version }}
         run: >-
-          git fetch --depth=1 origin "+refs/tags/${TAG}" > /dev/null 2>&1 &&
           export MAJOR_VERSION="$(cut -d'.' -f1 <<< "$VERSION")" &&
           export MINOR_VERSION="$(cut -d'.' -f1-2 <<< "$VERSION")" &&
           git tag "$MAJOR_VERSION" &&
