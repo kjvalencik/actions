@@ -90,7 +90,7 @@ jobs:
           export MINOR_VERSION="$(cut -d'.' -f1-2 <<< "$VERSION")" &&
           git tag "$MAJOR_VERSION" &&
           git tag "$MINOR_VERSION" &&
-          git tag "$VERSION"
+          git tag "$VERSION" &&
           git push -f origin "$MAJOR_VERSION" &&
           git push -f origin "$MINOR_VERSION" &&
           git push -f origin "$VERSION"
