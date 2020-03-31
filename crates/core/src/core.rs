@@ -9,10 +9,10 @@ use uuid::Uuid;
 const PATH_VAR: &str = "PATH";
 
 #[cfg(not(windows))]
-const DELIMITER: &str = ":";
+pub(crate) const DELIMITER: &str = ":";
 
 #[cfg(windows)]
-const DELIMITER: &str = ";";
+pub(crate) const DELIMITER: &str = ";";
 
 pub struct Core<W> {
 	out: W,
@@ -29,6 +29,12 @@ impl Default for Core<std::io::Stdout> {
 impl Core<std::io::Stdout> {
 	pub fn new() -> Self {
 		Default::default()
+	}
+}
+
+impl<W: Write> From<W> for Core<W> {
+	fn from(out: W) -> Self {
+		Core { out }
 	}
 }
 
@@ -120,10 +126,13 @@ where
 		crate::get_state(name)
 	}
 
+	// TODO: Should the API prevent compiling code that will output commands
+	// while this is running?
 	pub fn stop_logging<F, T>(&mut self, f: F) -> io::Result<T>
 	where
 		F: FnOnce() -> T,
 	{
+		// TODO: Allow the to be configurable (helpful for tests)
 		let token = Uuid::new_v4().to_string();
 
 		self.issue("stop-commands", &token)?;
@@ -180,5 +189,151 @@ where
 		log: Log<M>,
 	) -> io::Result<()> {
 		self.log(LogLevel::Warning, log)
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use std::cell::RefCell;
+	use std::env;
+	use std::io;
+	use std::rc::Rc;
+
+	use crate::core::DELIMITER;
+	use crate::*;
+
+	#[derive(Clone)]
+	struct TestBuf {
+		inner: Rc<RefCell<Vec<u8>>>,
+	}
+
+	impl TestBuf {
+		fn new() -> Self {
+			Self {
+				inner: Rc::new(RefCell::new(Vec::new())),
+			}
+		}
+
+		fn clear(&self) {
+			self.inner.borrow_mut().clear();
+		}
+
+		fn to_string(&self) -> String {
+			String::from_utf8(self.inner.borrow().to_vec()).unwrap()
+		}
+	}
+
+	impl io::Write for TestBuf {
+		fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+			self.inner.borrow_mut().write(buf)
+		}
+
+		fn flush(&mut self) -> io::Result<()> {
+			self.inner.borrow_mut().flush()
+		}
+	}
+
+	fn test<F>(expected: &str, f: F)
+	where
+		F: FnOnce(Core<TestBuf>) -> io::Result<()>,
+	{
+		let buf = TestBuf::new();
+
+		f(Core::from(buf.clone())).unwrap();
+
+		assert_eq!(buf.to_string(), expected);
+	}
+
+	#[test]
+	fn set_output() {
+		test("::set-output name=greeting::hello\n", |mut core| {
+			core.set_output("greeting", "hello")
+		});
+	}
+
+	#[test]
+	fn export_variable() {
+		test("::set-env name=greeting::hello\n", |mut core| {
+			core.export_variable("greeting", "hello")
+		});
+
+		assert_eq!(env::var("greeting").unwrap().as_str(), "hello");
+	}
+
+	#[test]
+	fn set_secret() {
+		test("::add-mask::super secret message\n", |mut core| {
+			core.set_secret("super secret message")
+		});
+	}
+
+	#[test]
+	fn add_path() {
+		test("::add-path::/this/is/a/test\n", |mut core| {
+			core.add_path("/this/is/a/test")
+		});
+
+		let path = env::var("PATH").unwrap();
+		let last_path = path.split(DELIMITER).last().unwrap();
+
+		assert_eq!(last_path, "/this/is/a/test");
+	}
+
+	#[test]
+	fn save_state() {
+		test("::save-state name=greeting::hello\n", |mut core| {
+			core.save_state("greeting", "hello")
+		});
+	}
+
+	#[test]
+	fn stop_logging() {
+		let buf = TestBuf::new();
+		let mut core = Core::from(buf.clone());
+		let mut token = String::new();
+
+		core.stop_logging(|| {
+			let output = buf.to_string();
+
+			assert!(output.starts_with("::stop-commands::"));
+
+			token = output.trim().split("::").last().unwrap().to_string();
+			buf.clear();
+		})
+		.unwrap();
+
+		assert_eq!(buf.to_string(), format!("::{}::\n", token));
+	}
+
+	#[test]
+	fn test_debug() {
+		test("::debug::Hello, World!\n", |mut core| {
+			core.debug("Hello, World!")
+		});
+	}
+
+	#[test]
+	fn test_error_complex() {
+		test(
+			"::error file=/test/file.rs,line=5,col=10::hello\n",
+			|mut core| {
+				core.log_error(Log {
+					message: "hello",
+					file: Some("/test/file.rs"),
+					line: Some(5),
+					col: Some(10),
+				})
+			},
+		);
+	}
+
+	#[test]
+	fn test_warning_omit() {
+		test("::warning::hello\n", |mut core| {
+			core.log_warning(Log {
+				message: "hello",
+				..Default::default()
+			})
+		});
 	}
 }
