@@ -7,3 +7,10 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1"
+actions-toolkit = { version = "=0.1.0", path = "crates/toolkit" }
+
+[workspace]
+members = [
+	"crates/toolkit",
+	"crates/core",
+]

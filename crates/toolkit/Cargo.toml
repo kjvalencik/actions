@@ -1,0 +1,8 @@
+[package]
+name = "actions-toolkit"
+version = "0.1.0"
+authors = ["K.J. Valencik <kjvalencik@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+actions-core = { version = "=0.1.0", path = "../core" }

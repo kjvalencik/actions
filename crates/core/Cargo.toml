@@ -1,0 +1,8 @@
+[package]
+name = "actions-core"
+version = "0.1.0"
+authors = ["K.J. Valencik <kjvalencik@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+uuid = { version = "0.8", features = ["v4"] }
