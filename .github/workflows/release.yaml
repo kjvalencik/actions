@@ -25,10 +25,10 @@ jobs:
         run: >-
           echo -n "::set-output name=version::" &&
           cargo metadata --format-version=1 --no-deps |
-          jq -r '.packages[0].version' &&
+          jq -r '.packages[-1].version' &&
           echo -n "::set-output name=name::" &&
           cargo metadata --format-version=1 --no-deps |
-          jq -r '.packages[0].name'
+          jq -r '.packages[-1].name'
       - name: Check if tag is released
         id: tag
         shell: bash
@@ -78,7 +78,7 @@ jobs:
         run: >-
           echo -n "::set-output name=version::" &&
           cargo metadata --format-version=1 --no-deps |
-          jq -r '.packages[0].version'
+          jq -r '.packages[-1].version'
       - name: Check if tag is released
         id: tag
         shell: bash
