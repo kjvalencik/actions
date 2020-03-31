@@ -31,8 +31,12 @@ fn issue<V: AsRef<str>>(k: &str, v: V) {
 	println!("::{}::{}", k, escape_data(v));
 }
 
+fn cmd_arg<V: AsRef<str>>(k: &str, v: V) -> String {
+	format!("{}={}", k, escape_property(v))
+}
+
 fn issue_named<K: AsRef<str>, V: AsRef<str>>(name: &str, k: K, v: V) {
-	println!("::{} name={}::{}", name, escape_property(k), escape_data(v),);
+	println!("::{} {}::{}", name, cmd_arg("name", k), escape_data(v));
 }
 
 fn var_from_name<K: AsRef<str>>(
@@ -83,7 +87,55 @@ pub fn is_debug() -> bool {
 	env::var_os("RUNNER_DEBUG").as_deref() == Some(OsStr::new("1"))
 }
 
-// TODO: These should handle file, line, col
+#[derive(Debug, Default)]
+pub struct Log<'f, M> {
+	pub message: M,
+	pub file: Option<&'f str>,
+	pub line: Option<usize>,
+	pub col: Option<usize>,
+}
+
+impl<'p, M> Log<'p, M>
+where
+	M: AsRef<str> + Default,
+{
+	fn log(&self, level: &str) {
+		if self.file.is_none() && self.line.is_none() && self.col.is_none() {
+			issue(level, self.message.as_ref());
+			return;
+		}
+
+		let args = vec![
+			self.file.map(|f| cmd_arg("file", f)),
+			self.line.map(|l| cmd_arg("line", l.to_string())),
+			self.col.map(|c| cmd_arg("col", c.to_string())),
+		];
+
+		let args = args.into_iter().flatten().collect::<Vec<_>>().join(",");
+
+		println!("::{} {}::{}", level, args, self.message.as_ref());
+	}
+
+	pub fn message(message: M) -> Self {
+		Self {
+			message,
+			..Default::default()
+		}
+	}
+
+	pub fn debug(&self) {
+		self.log("debug")
+	}
+
+	pub fn error(&self) {
+		self.log("error")
+	}
+
+	pub fn warning(&self) {
+		self.log("warning")
+	}
+}
+
 pub fn debug<M: AsRef<str>>(message: M) {
 	issue("debug", message);
 }
