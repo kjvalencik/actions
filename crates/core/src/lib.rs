@@ -44,9 +44,9 @@ pub fn input<K: AsRef<str>>(name: K) -> Result<String, env::VarError> {
 ///
 /// let count = 5;
 ///
-/// core::set_output("count", 5);
+/// core::set_output("count", 5.to_string());
 /// ```
-pub fn set_output<K: AsRef<str>, V: ToString>(k: K, v: V) {
+pub fn set_output<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
 	Core::new().set_output(k, v).assert();
 }
 
@@ -65,7 +65,7 @@ pub fn set_output<K: AsRef<str>, V: ToString>(k: K, v: V) {
 /// 	Some(std::ffi::OsStr::new("hello")),
 /// );
 /// ```
-pub fn set_env<K: AsRef<str>, V: ToString>(k: K, v: V) {
+pub fn set_env<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
 	Core::new().set_env(k, v).assert();
 }
 
@@ -101,7 +101,7 @@ pub fn add_path<P: AsRef<str>>(v: P) {
 ///
 /// core::save_state("my_greeting", "hello");
 /// ```
-pub fn save_state<K: AsRef<str>, V: ToString>(k: K, v: V) {
+pub fn save_state<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
 	Core::new().save_state(k, v).assert();
 }
 

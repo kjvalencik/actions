@@ -68,23 +68,23 @@ where
 		crate::input(name)
 	}
 
-	pub fn set_output<K: AsRef<str>, V: ToString>(
+	pub fn set_output<K: AsRef<str>, V: AsRef<str>>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		self.issue_named("set-output", k, v.to_string())
+		self.issue_named("set-output", k, v.as_ref())
 	}
 
-	pub fn set_env<K: AsRef<str>, V: ToString>(
+	pub fn set_env<K: AsRef<str>, V: AsRef<str>>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		let v = v.to_string();
+		let v = v.as_ref();
 
 		// TODO: Move the side effect to a struct member
-		env::set_var(k.as_ref(), v.as_str());
+		env::set_var(k.as_ref(), v);
 
 		self.issue_named("set-env", k, v)
 	}
@@ -113,12 +113,12 @@ where
 		Ok(())
 	}
 
-	pub fn save_state<K: AsRef<str>, V: ToString>(
+	pub fn save_state<K: AsRef<str>, V: AsRef<str>>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		self.issue_named("save-state", k, v.to_string())
+		self.issue_named("save-state", k, v.as_ref())
 	}
 
 	pub fn state<K: AsRef<str>>(
