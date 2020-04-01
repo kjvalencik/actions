@@ -186,10 +186,7 @@ where
 		self.log(LogLevel::Error, log)
 	}
 
-	pub fn log_warning<M: ToString>(
-		&mut self,
-		log: Log<M>,
-	) -> io::Result<()> {
+	pub fn log_warning<M: ToString>(&mut self, log: Log<M>) -> io::Result<()> {
 		self.log(LogLevel::Warning, log)
 	}
 }

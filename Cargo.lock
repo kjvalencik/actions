@@ -20,6 +20,7 @@ name = "actions-toolkit"
 version = "0.0.1"
 dependencies = [
  "actions-core",
+ "uuid",
 ]
 
 [[package]]

@@ -2,7 +2,14 @@
 name = "actions-toolkit"
 version = "0.0.1"
 authors = ["K.J. Valencik <kjvalencik@gmail.com>"]
+description = "Github Actions Toolkit"
+homepage = "https://github.com/kjvalencik/actions/crates/toolkit"
+repository = "https://github.com/kjvalencik/actions.git"
+documentation = "https://docs.rs/actions-toolkit/"
+license = "MIT"
 edition = "2018"
+workspace = "../.."
 
 [dependencies]
 actions-core = { version = "=0.0.1", path = "../core" }
+uuid = { version = "0.8", features = ["v4"] }

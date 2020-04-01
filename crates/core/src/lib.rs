@@ -29,9 +29,9 @@ impl<T> AssertStdout<T> for io::Result<T> {
 ///
 /// # std::env::set_var("INPUT_MILLISECONDS", "1000");
 /// let ms: u32 = core::input("milliseconds")
-/// 	.expect("Failed to get milliseconds")
-/// 	.parse()
-/// 	.expect("Failed to parse milliseconds");
+///     .expect("Failed to get milliseconds")
+///     .parse()
+///     .expect("Failed to parse milliseconds");
 /// ```
 pub fn input<K: ToString>(name: K) -> Result<String, env::VarError> {
 	util::var_from_name("INPUT", name)
@@ -61,8 +61,8 @@ pub fn set_output<K: ToString, V: ToString>(k: K, v: V) {
 /// core::set_env("MY_GREETING", "hello");
 ///
 /// assert_eq!(
-/// 	std::env::var_os("MY_GREETING").as_deref(),
-/// 	Some(std::ffi::OsStr::new("hello")),
+///     std::env::var_os("MY_GREETING").as_deref(),
+///     Some(std::ffi::OsStr::new("hello")),
 /// );
 /// ```
 pub fn set_env<K: ToString, V: ToString>(k: K, v: V) {
@@ -111,7 +111,7 @@ pub fn save_state<K: ToString, V: ToString>(k: K, v: V) {
 /// use actions_core as core;
 ///
 /// let greeting = core::state("my_greeting")
-/// 	.unwrap_or_else(|_| "hello".to_owned());
+///     .unwrap_or_else(|_| "hello".to_owned());
 /// ```
 pub fn state<K: ToString>(name: K) -> Result<String, env::VarError> {
 	util::var_from_name("STATE", name)
@@ -125,7 +125,7 @@ pub fn state<K: ToString>(name: K) -> Result<String, env::VarError> {
 /// use actions_core as core;
 ///
 /// core::stop_logging(|| {
-/// 	println!("::set-env name=ignored::value");
+///     println!("::set-env name=ignored::value");
 /// });
 /// ```
 pub fn stop_logging<F, T>(f: F) -> T

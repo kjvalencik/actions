@@ -1,3 +1,5 @@
+use anyhow::{anyhow, Context, Error, Result};
+
 mod action;
 
 #[derive(Debug)]
@@ -6,34 +8,23 @@ enum Command {
 }
 
 impl std::str::FromStr for Command {
-	type Err = ();
+	type Err = Error;
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let cmd = match s {
 			"wait" => Command::Wait,
-			_ => return Err(()),
+			_ => return Err(anyhow!("Invalid command: {}", s)),
 		};
 
 		Ok(cmd)
 	}
 }
 
-fn main() {
-	let cmd = match std::env::args().nth(1) {
-		Some(cmd) => cmd,
-		None => {
-			eprintln!("Must provide a command");
-			std::process::exit(2);
-		}
-	};
-
-	let cmd = match cmd.parse::<Command>() {
-		Ok(cmd) => cmd,
-		Err(_) => {
-			eprintln!("Invalid command: {}", cmd);
-			std::process::exit(1);
-		}
-	};
+fn main() -> Result<()> {
+	let cmd: Command = std::env::args()
+		.nth(1)
+		.context("Must provide a command")?
+		.parse()?;
 
 	let result = match cmd {
 		Command::Wait => action::wait(),
@@ -44,4 +35,6 @@ fn main() {
 
 		std::process::exit(1);
 	}
+
+	Ok(())
 }

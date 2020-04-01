@@ -2,7 +2,13 @@
 name = "actions-core"
 version = "0.0.1"
 authors = ["K.J. Valencik <kjvalencik@gmail.com>"]
+description = "Github Actions Core"
+homepage = "https://github.com/kjvalencik/actions/crates/core"
+repository = "https://github.com/kjvalencik/actions.git"
+documentation = "https://docs.rs/actions-core/"
+license = "MIT"
 edition = "2018"
+workspace = "../.."
 
 [dependencies]
 uuid = { version = "0.8", features = ["v4"] }
