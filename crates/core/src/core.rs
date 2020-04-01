@@ -68,26 +68,28 @@ where
 		crate::input(name)
 	}
 
-	pub fn set_output<K: AsRef<str>, V: AsRef<str>>(
+	pub fn set_output<K: AsRef<str>, V: ToString>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		self.issue_named("set-output", k, v)
+		self.issue_named("set-output", k, v.to_string())
 	}
 
-	pub fn export_variable<K: AsRef<str>, V: AsRef<str>>(
+	pub fn set_env<K: AsRef<str>, V: ToString>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
+		let v = v.to_string();
+
 		// TODO: Move the side effect to a struct member
-		env::set_var(k.as_ref(), v.as_ref());
+		env::set_var(k.as_ref(), v.as_str());
 
 		self.issue_named("set-env", k, v)
 	}
 
-	pub fn set_secret<V: AsRef<str>>(&mut self, v: V) -> io::Result<()> {
+	pub fn add_mask<V: AsRef<str>>(&mut self, v: V) -> io::Result<()> {
 		self.issue("add-mask", v)
 	}
 
@@ -111,19 +113,19 @@ where
 		Ok(())
 	}
 
-	pub fn save_state<K: AsRef<str>, V: AsRef<str>>(
+	pub fn save_state<K: AsRef<str>, V: ToString>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		self.issue_named("save-state", k, v)
+		self.issue_named("save-state", k, v.to_string())
 	}
 
-	pub fn get_state<K: AsRef<str>>(
+	pub fn state<K: AsRef<str>>(
 		_: &Self,
 		name: K,
 	) -> Result<String, env::VarError> {
-		crate::get_state(name)
+		crate::state(name)
 	}
 
 	// TODO: Should the API prevent compiling code that will output commands
@@ -252,18 +254,18 @@ mod test {
 	}
 
 	#[test]
-	fn export_variable() {
+	fn set_env() {
 		test("::set-env name=greeting::hello\n", |mut core| {
-			core.export_variable("greeting", "hello")
+			core.set_env("greeting", "hello")
 		});
 
 		assert_eq!(env::var("greeting").unwrap().as_str(), "hello");
 	}
 
 	#[test]
-	fn set_secret() {
+	fn add_mask() {
 		test("::add-mask::super secret message\n", |mut core| {
-			core.set_secret("super secret message")
+			core.add_mask("super secret message")
 		});
 	}
 
