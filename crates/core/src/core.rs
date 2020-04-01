@@ -42,11 +42,11 @@ impl<W> Core<W>
 where
 	W: Write,
 {
-	fn issue<V: AsRef<str>>(&mut self, k: &str, v: V) -> io::Result<()> {
+	fn issue<V: ToString>(&mut self, k: &str, v: V) -> io::Result<()> {
 		writeln!(self.out, "::{}::{}", k, util::escape_data(v))
 	}
 
-	fn issue_named<K: AsRef<str>, V: AsRef<str>>(
+	fn issue_named<K: ToString, V: ToString>(
 		&mut self,
 		name: &str,
 		k: K,
@@ -61,42 +61,42 @@ where
 		)
 	}
 
-	pub fn input<K: AsRef<str>>(
+	pub fn input<K: ToString>(
 		_: &Self,
 		name: K,
 	) -> Result<String, env::VarError> {
 		crate::input(name)
 	}
 
-	pub fn set_output<K: AsRef<str>, V: AsRef<str>>(
+	pub fn set_output<K: ToString, V: ToString>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		self.issue_named("set-output", k, v.as_ref())
+		self.issue_named("set-output", k, v.to_string())
 	}
 
-	pub fn set_env<K: AsRef<str>, V: AsRef<str>>(
+	pub fn set_env<K: ToString, V: ToString>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		let v = v.as_ref();
+		let v = v.to_string();
 
 		// TODO: Move the side effect to a struct member
-		env::set_var(k.as_ref(), v);
+		env::set_var(k.to_string(), &v);
 
 		self.issue_named("set-env", k, v)
 	}
 
-	pub fn add_mask<V: AsRef<str>>(&mut self, v: V) -> io::Result<()> {
+	pub fn add_mask<V: ToString>(&mut self, v: V) -> io::Result<()> {
 		self.issue("add-mask", v)
 	}
 
-	pub fn add_path<P: AsRef<str>>(&mut self, v: P) -> io::Result<()> {
-		let v = v.as_ref();
+	pub fn add_path<P: ToString>(&mut self, v: P) -> io::Result<()> {
+		let v = v.to_string();
 
-		self.issue("add-path", v)?;
+		self.issue("add-path", &v)?;
 
 		// TODO: Move the side effect to a struct member
 		let path = if let Some(mut path) = env::var_os(PATH_VAR) {
@@ -113,15 +113,15 @@ where
 		Ok(())
 	}
 
-	pub fn save_state<K: AsRef<str>, V: AsRef<str>>(
+	pub fn save_state<K: ToString, V: ToString>(
 		&mut self,
 		k: K,
 		v: V,
 	) -> io::Result<()> {
-		self.issue_named("save-state", k, v.as_ref())
+		self.issue_named("save-state", k, v.to_string())
 	}
 
-	pub fn state<K: AsRef<str>>(
+	pub fn state<K: ToString>(
 		_: &Self,
 		name: K,
 	) -> Result<String, env::VarError> {
@@ -150,7 +150,7 @@ where
 		crate::is_debug()
 	}
 
-	pub fn log_message<M: AsRef<str>>(
+	pub fn log_message<M: ToString>(
 		&mut self,
 		level: LogLevel,
 		message: M,
@@ -158,19 +158,19 @@ where
 		self.issue(level.as_ref(), message)
 	}
 
-	pub fn debug<M: AsRef<str>>(&mut self, message: M) -> io::Result<()> {
+	pub fn debug<M: ToString>(&mut self, message: M) -> io::Result<()> {
 		self.log_message(LogLevel::Debug, message)
 	}
 
-	pub fn error<M: AsRef<str>>(&mut self, message: M) -> io::Result<()> {
+	pub fn error<M: ToString>(&mut self, message: M) -> io::Result<()> {
 		self.log_message(LogLevel::Error, message)
 	}
 
-	pub fn warning<M: AsRef<str>>(&mut self, message: M) -> io::Result<()> {
+	pub fn warning<M: ToString>(&mut self, message: M) -> io::Result<()> {
 		self.log_message(LogLevel::Warning, message)
 	}
 
-	pub fn log<M: AsRef<str>>(
+	pub fn log<M: ToString>(
 		&mut self,
 		level: LogLevel,
 		log: Log<M>,
@@ -178,15 +178,15 @@ where
 		writeln!(self.out, "::{}{}", level.as_ref(), log)
 	}
 
-	pub fn log_debug<M: AsRef<str>>(&mut self, log: Log<M>) -> io::Result<()> {
+	pub fn log_debug<M: ToString>(&mut self, log: Log<M>) -> io::Result<()> {
 		self.log(LogLevel::Debug, log)
 	}
 
-	pub fn log_error<M: AsRef<str>>(&mut self, log: Log<M>) -> io::Result<()> {
+	pub fn log_error<M: ToString>(&mut self, log: Log<M>) -> io::Result<()> {
 		self.log(LogLevel::Error, log)
 	}
 
-	pub fn log_warning<M: AsRef<str>>(
+	pub fn log_warning<M: ToString>(
 		&mut self,
 		log: Log<M>,
 	) -> io::Result<()> {

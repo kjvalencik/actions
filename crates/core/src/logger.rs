@@ -40,11 +40,11 @@ impl<'f, M> Log<'f, M> {
 
 impl<'f, M> fmt::Display for Log<'f, M>
 where
-	M: AsRef<str>,
+	M: ToString,
 {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		if self.file.is_none() && self.line.is_none() && self.col.is_none() {
-			return write!(f, "::{}", self.message.as_ref());
+			return write!(f, "::{}", self.message.to_string());
 		}
 
 		let args = vec![
@@ -55,6 +55,6 @@ where
 
 		let args = args.into_iter().flatten().collect::<Vec<_>>().join(",");
 
-		write!(f, " {}::{}", args, self.message.as_ref())
+		write!(f, " {}::{}", args, self.message.to_string())
 	}
 }

@@ -33,7 +33,7 @@ impl<T> AssertStdout<T> for io::Result<T> {
 /// 	.parse()
 /// 	.expect("Failed to parse milliseconds");
 /// ```
-pub fn input<K: AsRef<str>>(name: K) -> Result<String, env::VarError> {
+pub fn input<K: ToString>(name: K) -> Result<String, env::VarError> {
 	util::var_from_name("INPUT", name)
 }
 
@@ -44,9 +44,9 @@ pub fn input<K: AsRef<str>>(name: K) -> Result<String, env::VarError> {
 ///
 /// let count = 5;
 ///
-/// core::set_output("count", 5.to_string());
+/// core::set_output("count", 5);
 /// ```
-pub fn set_output<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
+pub fn set_output<K: ToString, V: ToString>(k: K, v: V) {
 	Core::new().set_output(k, v).assert();
 }
 
@@ -65,7 +65,7 @@ pub fn set_output<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
 /// 	Some(std::ffi::OsStr::new("hello")),
 /// );
 /// ```
-pub fn set_env<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
+pub fn set_env<K: ToString, V: ToString>(k: K, v: V) {
 	Core::new().set_env(k, v).assert();
 }
 
@@ -78,7 +78,7 @@ pub fn set_env<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
 ///
 /// core::add_mask("supersecret");
 /// ```
-pub fn add_mask<V: AsRef<str>>(v: V) {
+pub fn add_mask<V: ToString>(v: V) {
 	Core::new().add_mask(v).assert();
 }
 
@@ -90,7 +90,7 @@ pub fn add_mask<V: AsRef<str>>(v: V) {
 ///
 /// core::add_path("/opt/my-app/bin");
 /// ```
-pub fn add_path<P: AsRef<str>>(v: P) {
+pub fn add_path<P: ToString>(v: P) {
 	Core::new().add_path(v).assert();
 }
 
@@ -101,7 +101,7 @@ pub fn add_path<P: AsRef<str>>(v: P) {
 ///
 /// core::save_state("my_greeting", "hello");
 /// ```
-pub fn save_state<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
+pub fn save_state<K: ToString, V: ToString>(k: K, v: V) {
 	Core::new().save_state(k, v).assert();
 }
 
@@ -113,7 +113,7 @@ pub fn save_state<K: AsRef<str>, V: AsRef<str>>(k: K, v: V) {
 /// let greeting = core::state("my_greeting")
 /// 	.unwrap_or_else(|_| "hello".to_owned());
 /// ```
-pub fn state<K: AsRef<str>>(name: K) -> Result<String, env::VarError> {
+pub fn state<K: ToString>(name: K) -> Result<String, env::VarError> {
 	util::var_from_name("STATE", name)
 }
 
@@ -157,7 +157,7 @@ pub fn is_debug() -> bool {
 ///
 /// core::debug("shaving a yak");
 /// ```
-pub fn debug<M: AsRef<str>>(message: M) {
+pub fn debug<M: ToString>(message: M) {
 	Core::new().debug(message).assert();
 }
 
@@ -169,7 +169,7 @@ pub fn debug<M: AsRef<str>>(message: M) {
 ///
 /// core::error("shaving a yak");
 /// ```
-pub fn error<M: AsRef<str>>(message: M) {
+pub fn error<M: ToString>(message: M) {
 	Core::new().error(message).assert();
 }
 
@@ -181,26 +181,26 @@ pub fn error<M: AsRef<str>>(message: M) {
 ///
 /// core::warning("shaving a yak");
 /// ```
-pub fn warning<M: AsRef<str>>(message: M) {
+pub fn warning<M: ToString>(message: M) {
 	Core::new().warning(message).assert();
 }
 
-pub fn log_message<M: AsRef<str>>(level: LogLevel, message: M) {
+pub fn log_message<M: ToString>(level: LogLevel, message: M) {
 	Core::new().log_message(level, message).assert();
 }
 
-pub fn log<M: AsRef<str>>(level: LogLevel, log: Log<M>) {
+pub fn log<M: ToString>(level: LogLevel, log: Log<M>) {
 	Core::new().log(level, log).assert();
 }
 
-pub fn log_debug<M: AsRef<str>>(log: Log<M>) {
+pub fn log_debug<M: ToString>(log: Log<M>) {
 	Core::new().log_debug(log).assert();
 }
 
-pub fn log_error<M: AsRef<str>>(log: Log<M>) {
+pub fn log_error<M: ToString>(log: Log<M>) {
 	Core::new().log_error(log).assert();
 }
 
-pub fn log_warning<M: AsRef<str>>(log: Log<M>) {
+pub fn log_warning<M: ToString>(log: Log<M>) {
 	Core::new().log_warning(log).assert();
 }
