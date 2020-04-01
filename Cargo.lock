@@ -10,14 +10,14 @@ dependencies = [
 
 [[package]]
 name = "actions-core"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "uuid",
 ]
 
 [[package]]
 name = "actions-toolkit"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "actions-core",
  "uuid",
