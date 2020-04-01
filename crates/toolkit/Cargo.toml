@@ -1,15 +1,16 @@
 [package]
 name = "actions-toolkit"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["K.J. Valencik <kjvalencik@gmail.com>"]
 description = "Github Actions Toolkit"
-homepage = "https://github.com/kjvalencik/actions/crates/toolkit"
+homepage = "https://github.com/kjvalencik/actions/tree/master/crates/toolkit"
 repository = "https://github.com/kjvalencik/actions.git"
 documentation = "https://docs.rs/actions-toolkit/"
+readme = "README.md"
 license = "MIT"
 edition = "2018"
 workspace = "../.."
 
 [dependencies]
-actions-core = { version = "=0.0.1", path = "../core" }
+actions-core = { version = "=0.0.2", path = "../core" }
 uuid = { version = "0.8", features = ["v4"] }

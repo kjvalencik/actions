@@ -1,11 +1,12 @@
 [package]
 name = "actions-core"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["K.J. Valencik <kjvalencik@gmail.com>"]
 description = "Github Actions Core"
-homepage = "https://github.com/kjvalencik/actions/crates/core"
+homepage = "https://github.com/kjvalencik/actions/tree/master/crates/core"
 repository = "https://github.com/kjvalencik/actions.git"
 documentation = "https://docs.rs/actions-core/"
+readme = "README.md"
 license = "MIT"
 edition = "2018"
 workspace = "../.."

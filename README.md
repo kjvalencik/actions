@@ -7,7 +7,7 @@ Rust actions.
 
 ## Toolkit
 
-The [`actions-toolkit`] crate provides common functionality for building
+The [`actions-toolkit`][actions-toolkit] crate provides common functionality for building
 Github Actions in Rust. It is broken into sub-crates for more granular
 usage.
 
@@ -51,7 +51,7 @@ cache, and execute a binary.
 
 The [`./run/index.ts`](./run/index.ts) file implements a generic bootstrap
 action. The file reads the current version from `Cargo.toml` and downloads
-the binary from [releases](./releases).
+the binary from [releases][releases].
 
 ### Sub-actions
 
@@ -63,4 +63,5 @@ binary. For example, `./action wait`. This allows multiple actions to
 effectively be provided by a single binary, decreasing overall size.
 
 [actions-toolkit]: ./crates/toolkit
+[releases]: https://github.com/kjvalencik/actions/releases
 [workflow]: ./.github/workflows/release.yaml
