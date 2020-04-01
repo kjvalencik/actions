@@ -1,7 +1,7 @@
 # actions-toolkit
 
 Inspired by the [Javascript Actions Toolkit], this crate provides a set of
-modules to make creating easier.
+modules to make creating Github Actions easier.
 
 ## Crates
 
